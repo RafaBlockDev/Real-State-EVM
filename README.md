@@ -4,6 +4,12 @@ Real State business built in solidity and deployed on the EVM and blockchain.
 
 ## Problem
 
+1- The floor is so expensive to buy with only one person, but, we can make than the floor can be bought for a group of persons using a system descentralized and with confidence.
+
+2- Freedom to use their money on the apartment.
+
+## Useful with
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
