@@ -2,6 +2,8 @@
 
 Real State business built in solidity and deployed on the EVM and blockchain.
 
+![image]()
+
 ## Problem
 
 1- The floor is so expensive to buy with only one person, but, we can make than the floor can be bought for a group of persons using a system descentralized and with confidence.
