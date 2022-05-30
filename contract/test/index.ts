@@ -1,7 +1,7 @@
 import { expect } from "chai";
  import { BigNumber } from "ethers";
  import { ethers } from "hardhat";
- let owner, Alice, Bob, Joe;
+ let owner, Rafa, Joshua, Moka;
 
  describe("Apartment", function () {
 
@@ -23,12 +23,30 @@ import { expect } from "chai";
        const Apartment = await ethers.getContractFactory("Apartment");
        const apartament = await Apartment.deploy();
 
-       [owner, Alice] = await ethers.getSigners();
+       [owner, Rafa] = await ethers.getSigners();
 
        await apartament.deployed();
-       await apartament.transfer(Alice.address, 20);
-       expect(await apartament.balanceOf(Alice.address)).to.equal(20);
+       await apartament.transfer(Rafa.address, 20);
+       expect(await apartament.balanceOf(Rafa.address)).to.equal(20);
        expect(await apartament.balanceOf(owner.address)).to.equal(80);
    })
 
+   it("It should be possible to pay the rent and deposit it in ether in the apartment contract", async () => {
+    const Apartment = await ethers.getContractFactory("Apartment");
+    const apartment = await Apartment.deploy();
+
+    [owner, Rafa, Joshua] = await ethers.getSigners();
+
+    await apartment.deployed();
+
+    await Joshua.sendTransaction({
+      to: apartment.address,
+      value: ethers.utils.parseEther("1")
+    })
+
+    expect(await apartment.balance()).to.equal(ethers.utils.parseEther("1"));
+
+
+
+  })
  }); 
