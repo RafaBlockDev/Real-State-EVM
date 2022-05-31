@@ -67,4 +67,23 @@ import { expect } from "chai";
     expect(await (await owner.getBalance()).gt(ownerBalanceBeforeWithdrawal)).to.be.true;
   })
 
+  it("Shareholder be able to withdraw resources paid as rent", async () => {
+    const Apartment = await ethers.getContractFactory("Apartment");
+    const apartment = await Apartment.deploy();
+
+    [owner, Rafa, Joshua] = await ethers.getSigners();
+
+    await apartment.deployed();
+    await apartment.transfer(Rafa.address, 20);
+
+    await Joshua.sendTransaction({
+      to: apartment.address,
+      value: ethers.utils.parseEther("1")
+    });
+
+    const rafaBalanceOfWithdrawal = await Rafa.getBalance();
+    await apartment.connect(Rafa).withdraw();
+    expect(await (await Rafa.getBalance()).gt(rafaBalanceOfWithdrawal)).to.be.true;
+  })
+
  }); 
