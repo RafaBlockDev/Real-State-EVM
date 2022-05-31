@@ -1,6 +1,7 @@
 import { expect } from "chai";
  import { BigNumber } from "ethers";
  import { ethers } from "hardhat";
+import { execPath } from "process";
  let owner, Rafa, Joshua, Moka;
 
  describe("Apartment", function () {
@@ -84,6 +85,45 @@ import { expect } from "chai";
     const rafaBalanceOfWithdrawal = await Rafa.getBalance();
     await apartment.connect(Rafa).withdraw();
     expect(await (await Rafa.getBalance()).gt(rafaBalanceOfWithdrawal)).to.be.true;
+  })
+
+  it("Attempt to withdraw by non shareholder be reverted", async () => {
+    const Apartment = await ethers.getContractFactory("Apartment");
+    const apartment = await Apartment.deploy();
+
+    [owner, Rafa, Joshua] = await ethers.getSigners();
+
+    await apartment.deployed();
+    await apartment.transfer(Rafa.address, 20);
+
+    await Joshua.sendTransaction({
+      to: apartment.address,
+      value: ethers.utils.parseEther("1")
+    });
+
+    await expect(apartment.connect(Joshua).withdraw()).to.be.revertedWith("Unauthorized");
+  })
+
+  it("Apartment shareholder be able to withdraw resources proportional to his share", async () => {
+    const Apartment = await ethers.getContractFactory("Apartment");
+    const apartment = await Apartment.deploy();
+
+    [owner, Rafa, Joshua] = await ethers.getSigners();
+
+    await apartment.deployed();
+    await apartment.transfer(Rafa.address, 20);
+
+    await Joshua.sendTransaction({
+      to: apartment.address,
+      value: ethers.utils.parseEther("1")
+    });
+
+    const rafaBalanceBeforeWithdrawal = await Rafa.getBalance();
+
+    await apartment.connect(Rafa).withdraw();
+    expect(await (await apartment.balance()).eq(ethers.utils.parseEther("0.8"))).to.be.true;
+    expect(await (await apartment.balance()).gt(ethers.utils.parseEther("0"))).to.be.true;
+    expect(await (await Rafa.getBalance()).gt(rafaBalanceBeforeWithdrawal)).to.be.true;
   })
 
  }); 

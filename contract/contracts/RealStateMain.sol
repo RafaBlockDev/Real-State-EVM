@@ -18,7 +18,10 @@ contract Apartment is ERC20 {
             this.balanceOf(msg.sender) > 0,
             "Your balance need to be more than 0"
         );
-        payable(msg.sender).transfer(address(this).balance);
+        uint256 meansToWithdraw = (address(this).balance / 100) *
+            this.balanceOf(msg.sender);
+        balance = balance - meansToWithdraw;
+        payable(msg.sender).transfer(meansToWithdraw);
     }
 
     receive() external payable {
