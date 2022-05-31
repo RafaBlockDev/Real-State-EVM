@@ -13,6 +13,10 @@ contract Apartment is ERC20 {
         console.log("Deploying an aparment with this contract: ");
     }
 
+    function withdraw() public {
+        payable(msg.sender).transfer(address(this).balance);
+    }
+
     receive() external payable {
         console.log("Receive");
         balance += msg.value;
