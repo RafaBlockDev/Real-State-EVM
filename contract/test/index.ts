@@ -126,4 +126,22 @@ import { execPath } from "process";
     expect(await (await Rafa.getBalance()).gt(rafaBalanceBeforeWithdrawal)).to.be.true;
   })
 
+  it("", async () => {
+    const Apartment = await ethers.getContractFactory("Apartment");
+    const apartment = await Apartment.deploy();
+
+    [owner, Rafa, Joshua] = await ethers.getSigners();
+
+    await apartment.deployed();
+    await apartment.transfer(Rafa.address, 20);
+  
+    await Joshua.sendTransaction({
+      to: apartment.address,
+      value: ethers.utils.parseEther("1")
+    })
+
+    await apartment.connect(Rafa).withdraw();
+    await expect(apartment.connect(Rafa).withdraw()).to.be.revertedWith("0 funds to withdraw");
+  });
+
  }); 

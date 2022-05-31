@@ -7,6 +7,9 @@ import "hardhat/console.sol";
 
 contract Apartment is ERC20 {
     uint256 public balance;
+    uint256 public totalIncome;
+
+    mapping(address => uint256) withdrawRegister;
 
     constructor() ERC20("ApartmentCDMX", "ACDMX") {
         super._mint(_msgSender(), 100);
@@ -18,9 +21,14 @@ contract Apartment is ERC20 {
             this.balanceOf(msg.sender) > 0,
             "Your balance need to be more than 0"
         );
+        require(
+            totalIncome > withdrawRegister[msg.sender],
+            "0 funds to withdraw"
+        );
         uint256 meansToWithdraw = (address(this).balance / 100) *
             this.balanceOf(msg.sender);
         balance = balance - meansToWithdraw;
+        withdrawRegister[msg.sender] = totalIncome;
         payable(msg.sender).transfer(meansToWithdraw);
     }
 
