@@ -126,7 +126,7 @@ import { execPath } from "process";
     expect(await (await Rafa.getBalance()).gt(rafaBalanceBeforeWithdrawal)).to.be.true;
   })
 
-  it("", async () => {
+  it("It should not be possible to withdraw more than one should", async () => {
     const Apartment = await ethers.getContractFactory("Apartment");
     const apartment = await Apartment.deploy();
 
@@ -144,4 +144,26 @@ import { execPath } from "process";
     await expect(apartment.connect(Rafa).withdraw()).to.be.revertedWith("0 funds to withdraw");
   });
 
+  it("It should be possible to withdraw multiple times provided there were in between", async () => {
+    const Apartment = await ethers.getContractFactory("Apartment");
+    const apartment = await Apartment.deploy();
+
+    [owner, Rafa, Joshua] = await ethers.getSigners();
+
+    await apartment.deployed();
+    await apartment.transfer(Rafa.address, 20);
+
+    await Joshua.sendTransaction({
+      to: apartment.address,
+      value: ethers.utils.parseEther("1")
+    })
+
+    await apartment.connect(Rafa).withdraw();
+    await Joshua.sendTransaction({
+      to: apartment.address,
+      value: ethers.utils.parseEther("1");
+    })
+
+    await expect(apartment.connect(Rafa).withdraw()).not.to.be.revertedWith("0 funds to withdraw");
+  })
  }); 
