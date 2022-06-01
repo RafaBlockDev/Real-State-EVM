@@ -17,10 +17,7 @@ contract Apartment is ERC20 {
     }
 
     function withdraw() public {
-        require(
-            this.balanceOf(msg.sender) > 0,
-            "Your balance need to be more than 0"
-        );
+        require(this.balanceOf(msg.sender) > 0, "Unauthorized");
         require(
             totalIncome > withdrawRegister[msg.sender],
             "0 funds to withdraw"

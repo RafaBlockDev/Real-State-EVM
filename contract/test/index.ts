@@ -161,9 +161,55 @@ import { execPath } from "process";
     await apartment.connect(Rafa).withdraw();
     await Joshua.sendTransaction({
       to: apartment.address,
-      value: ethers.utils.parseEther("1");
+      value: ethers.utils.parseEther("1")
     })
 
     await expect(apartment.connect(Rafa).withdraw()).not.to.be.revertedWith("0 funds to withdraw");
   })
+
+  it("Each withdrawal should be calculated against new income, not total balance", async () => {
+    const Apartment = await ethers.getContractFactory("Apartment");
+    const apartment = await Apartment.deploy();
+
+    [owner, Rafa, Joshua] = await ethers.getSigners();
+
+    await apartment.deployed();
+    await apartment.transfer(Rafa.address, 20);
+
+    // Rafa balance saved for later comparison
+    const rafaInitialBalanceBeforeWithdrawals = await Rafa.getBalance();
+
+    // 1
+    // Joshua transfers his rent
+    await Joshua.sendTransaction({
+      to: apartment.address,
+      value: ethers.utils.parseEther("1")
+    });
+
+    // Rafa makes a withdrawal (20/100 * 1E) = 0.2E
+    await apartment.connect(Rafa).withdraw();
+    // Rafa amount saved after withdrawal for comparison
+    const rafaBalanceAfterFirstWithdrawal = await Rafa.getBalance();
+
+    await Joshua.sendTransaction({
+      to: apartment.address,
+      value: ethers.utils.parseEther("1")
+    })
+
+    // Rafa makes a withdrawal (20/100 * 1E) = 0.2E
+    await apartment.connect(Rafa).withdraw();
+    // Rafa amount saved after withdrawal for comparison
+    const rafaBalanceAfterSecondWithdrawal = await Rafa.getBalance();
+
+    expect(rafaInitialBalanceBeforeWithdrawals.lt(rafaBalanceAfterFirstWithdrawal)).to.be.true;
+    expect(rafaBalanceAfterFirstWithdrawal.lt(rafaBalanceAfterSecondWithdrawal)).to.be.true;
+  
+    // apartment balance should be following
+    // 1E after Joshua pays rent
+    // 0.8E after Rafa withdraws
+    // 1.8E after Joshua pays rent second time
+    // 1.6E after Alice withdraw rent second time
+    expect((await apartment.balance()).eq(ethers.utils.parseEther("1.6"))).to.be.true;
+  })
+
  }); 
